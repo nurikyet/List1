@@ -22,17 +22,17 @@ int ListCtor(struct List* my_list, int capacity)
 
     my_list->next = (int*) calloc(array_size, sizeof(char));
     ARRAY_OK(next);
-    for (int i = 0; i < capacity; i++)
+    for (int i = 0; i < capacity - 1; i++)
     {
         (my_list->next)[i] = i + 1;
     }
-    (my_list->next)[0] = FIRST_VALUE;
+    //(my_list->next)[0] = FIRST_VALUE;
 
     my_list->pred = (int*) calloc(array_size, sizeof(char));
     ARRAY_OK(pred);
     memset(my_list->pred, VALUE, capacity*sizeof(int));
-    (my_list->pred)[0] = FIRST_VALUE;
-    (my_list->pred)[1] = FIRST_VALUE;
+    //(my_list->pred)[0] = FIRST_VALUE;
+    //(my_list->pred)[1] = FIRST_VALUE;
 
     my_list->head = 0;
     my_list->tail = 0;
