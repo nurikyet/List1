@@ -19,7 +19,7 @@
 #define VERIFY(my_list) {int error = ListOk(LOG_FILE, my_list); printf("error in verify is %d\n", error);      \
                         if (error != 0)                                                                        \
                         {                                                                                      \
-                            PrintError(stderr, error);                                                       \
+                            PrintError(stderr, error);                                                         \
                             LIST_DUMP(my_list);                                                                \
                             return error;                                                                      \
                         }                                                                                      \
@@ -30,7 +30,7 @@
 const int POISON      = -777;
 const int FIRST_VALUE =    0;
 const int VALUE       =   -1;
-const int LINE_LEN    = 100;
+const int LINE_LEN    =  100;
 
 struct List
 {
@@ -48,15 +48,17 @@ struct List
 
 enum class Error
 {
-    NO_ERROR            = 0,
-    ERROR_CAPACITY      = 1 << 0,
-    ERROR_LEN           = 1 << 1,
-    ERROR_DATA          = 1 << 2,
-    ERROR_MEMORY        = 1 << 3,
-    ERROR_NEXT          = 1 << 4,
-    ERROR_PRED          = 1 << 5,
-    ERROR_STRUCT        = 1 << 6,
-    ERROR_SCANF         = 1 << 7
+    NO_ERROR                               = 0,
+    ERROR_CAPACITY                         = 1 << 0,
+    ERROR_LEN                              = 1 << 1,
+    ERROR_DATA                             = 1 << 2,
+    ERROR_MEMORY                           = 1 << 3,
+    ERROR_NEXT                             = 1 << 4,
+    ERROR_PRED                             = 1 << 5,
+    ERROR_STRUCT                           = 1 << 6,
+    ERROR_SCANF                            = 1 << 7,
+    ERROR_ZERO_ELEMENT                     = 1 << 8,
+    ERROR_DIFFERENCE_BETWEEN_NEXT_AND_PRED = 1 << 9,
 };
 
 int ListCtor(struct List* my_list, int capacity);
@@ -67,6 +69,7 @@ int ListPushAfterTail(struct List* my_list, elem_t element);
 int ListPop(struct List* my_list, int index);
 int ListPopFirstElement(struct List* my_list);
 int ListPushFirst(struct List* my_list, elem_t element);
+int ListVerify(struct List* my_list, int result);
 
 void ListDump(FILE* fp, struct List* my_list, const char* func, const char* file, const int line);
 void PrintError(FILE* fp, int result);

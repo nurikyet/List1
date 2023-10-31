@@ -12,11 +12,19 @@ int main(/*const int argc, const char* argv[]*/)
 
     LIST_DUMP(&my_list);
 
-    ListPushAfter(&my_list, 3, 40);
+    ListPushAfter(&my_list, 1, 40);
 
     LIST_DUMP(&my_list);
 
-    ListPushAfter(&my_list, 4, 50);
+    ListPushAfter(&my_list, 2, 50);
+
+    LIST_DUMP(&my_list);
+
+    ListPop(&my_list, 3);
+
+    LIST_DUMP(&my_list);
+
+    LIST_DUMP(&my_list);
 
     ListDtor(&my_list);
 

@@ -2,8 +2,6 @@
 #include <string.h>
 
 #include "logfile.h"
-//#include "Types.h"
-//#include "List.h"
 
 FILE* LOG_FILE = stderr;
 

@@ -26,16 +26,13 @@ int ListCtor(struct List* my_list, int capacity)
     {
         (my_list->next)[i] = i + 1;
     }
-    //(my_list->next)[0] = FIRST_VALUE;
 
     my_list->pred = (int*) calloc(array_size, sizeof(char));
     ARRAY_OK(pred);
     memset(my_list->pred, VALUE, capacity*sizeof(int));
-    //(my_list->pred)[0] = FIRST_VALUE;
-    //(my_list->pred)[1] = FIRST_VALUE;
 
-    my_list->head = 0;
-    my_list->tail = 0;
+    my_list->head = 1;
+    my_list->tail = 1;
     my_list->free = 1;
 
     LIST_DUMP(my_list);
@@ -53,11 +50,11 @@ int ListDtor(struct List* my_list)
     my_list->next = nullptr;
     my_list->pred = nullptr;
 
-    my_list->capacity  = 0;
+    my_list->capacity  = POISON;
 
-    my_list->tail = 0;
-    my_list->head = 0;
-    my_list->free = 0;
+    my_list->tail = POISON;
+    my_list->head = POISON;
+    my_list->free = POISON;
 
     return (int)Error::NO_ERROR;
 }
@@ -119,37 +116,39 @@ int ListOk(FILE* fp, struct List* my_list)
     int result = 0;
 
     if (!my_list->capacity)
-        {
+    {
         result |= (int)Error::ERROR_CAPACITY;
-        }
+    }
 
     if (my_list->capacity < 0)
-        {
+    {
         result |= (int)Error::ERROR_CAPACITY;
-        }
+    }
 
     if (!my_list->data)
-        {
+    {
         result |= (int)Error::ERROR_DATA;
-        }
+    }
 
     if (my_list->next)
-        {
+    {
         result |= (int)Error::ERROR_NEXT;
-        }
+    }
 
     if (my_list->pred)
-        {
+    {
         result |= (int)Error::ERROR_PRED;
-        }
+    }
 
     if (my_list == nullptr)
-        {
+    {
         result |= (int)Error::ERROR_STRUCT;
-        }
+    }
 
-    PrintError(fp, result);
-    return result;
+    int new_result = ListVerify(my_list, result);
+
+    PrintError(fp, new_result);
+    return new_result;
 }
 
 void PrintError(FILE* fp, int result)
@@ -170,6 +169,12 @@ void PrintError(FILE* fp, int result)
 
     if ((result & (int)Error::ERROR_STRUCT) != 0)
         fprintf(fp, "address of struct != nullptr\n");
+
+    if ((result & (int)Error::ERROR_ZERO_ELEMENT) != 0)
+        fprintf(fp, "The first element is not equal to the poisonous value\n");
+
+    if ((result & (int)Error::ERROR_DIFFERENCE_BETWEEN_NEXT_AND_PRED) != 0)
+        fprintf(fp, "The order in the arrays next and pred is different\n");
 }
 
 int ListPushAfter(struct List* my_list, int index, elem_t element)
@@ -184,18 +189,10 @@ int ListPushAfter(struct List* my_list, int index, elem_t element)
         printf("Index cannot be greater than capacity, but you entered index - %d, capacity - %d\n", index, my_list->capacity);
     }
 
-    else if (index == 0)
+    else if (my_list->pred[index] == -1)
     {
-        return ListPushFirst(my_list, element);
-        ABOBA;
+        printf("There is no item with this index [%d] in the list\n", index);
     }
-
-    else if (index == my_list->tail)
-    {
-        return ListPushAfterTail(my_list, element);
-    }
-
-    ABOBA;
 
     int free_index = my_list->free;
     my_list->free  = my_list->next[free_index];
@@ -208,15 +205,17 @@ int ListPushAfter(struct List* my_list, int index, elem_t element)
     my_list->next[index]                     = free_index;
     my_list->pred[free_index]                = index;
 
+    if (index == my_list->tail)
+    {
+        my_list->tail = free_index;
+    }
+
     return free_index;
 }
 
 int ListPushFirst(struct List* my_list, elem_t element)
 {
     assert(my_list);
-
-    ABOBA;
-    printf("YA VOSHELLLLL!!!!!!!!!!!!!!!!!!\n");
 
     int free_index = my_list->free;
     my_list->free  = my_list->next[free_index];
@@ -233,10 +232,6 @@ int ListPushFirst(struct List* my_list, elem_t element)
     if (my_list->tail == 0)
     {
         my_list->tail = free_index;
-    }
-    else
-    {
-    //my_list->tail = ;
     }
 
     my_list->head = free_index;
@@ -278,17 +273,29 @@ int ListPop(struct List* my_list, int index)
         printf("Index cannot be greater than capacity, but you entered index - %d, capacity - %d\n", index, my_list->capacity);
     }
 
-    else if (index == my_list->head)
+    else if (my_list->pred[index] == -1)
     {
-        return ListPopFirstElement(my_list);
+        printf("The element with index [%d] has already been deleted\n", index);
     }
 
     my_list->next[my_list->pred[index]] = my_list->next[index];
     my_list->pred[my_list->next[index]] = my_list->pred[index];
 
+    if (index == my_list->head)
+    {
+        my_list->head = my_list->next[index];
+    }
+
+    if (index == my_list->tail)
+    {
+        my_list->tail = my_list->pred[index];
+    }
+
     my_list->data[index] = POISON;
-    my_list->pred[index] = VALUE;
+    my_list->pred[index] = my_list->pred[my_list->free];
     my_list->next[index] = my_list->free;
+
+    my_list->free = index;
 
     return (int)Error::NO_ERROR;
 }
@@ -306,3 +313,53 @@ int ListPopFirstElement(struct List* my_list)
     my_list->head = my_list->next[my_list->head];
     return (int)Error::NO_ERROR;
 }
+
+int ListVerify(struct List* my_list, int result)
+{
+    assert(my_list);
+
+    if (my_list->data[0]!= POISON)
+    {
+        result |= (int)Error::ERROR_ZERO_ELEMENT;
+    }
+
+    int new_next[LINE_LEN] = {};
+    int new_pred[LINE_LEN] = {};
+
+    int count_next = 0;
+    int actual_next = my_list->head;
+
+    while (actual_next != 0)
+    {
+        new_next[count_next] = my_list->data[count_next];
+        actual_next = my_list->next[actual_next];
+        count_next ++;
+    }
+
+    int count_pred = 0;
+    int actual_pred = my_list->tail;
+
+    while (actual_pred != 0)
+    {
+        new_pred[count_pred] = my_list->data[actual_pred];
+        actual_pred = my_list->pred[actual_pred];
+        count_pred ++;
+    }
+
+    if (count_next != count_pred)
+    {
+        result |= (int)Error::ERROR_DIFFERENCE_BETWEEN_NEXT_AND_PRED;
+    }
+
+    else
+    {
+        for (int i = 0; i < count_pred; i++)
+        {
+            if (new_next[i] != new_pred[count_pred - 1 - i])
+                result |= (int)Error::ERROR_DIFFERENCE_BETWEEN_NEXT_AND_PRED;
+        }
+    }
+
+    return result;
+}
+
