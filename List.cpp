@@ -363,3 +363,26 @@ int ListVerify(struct List* my_list, int result)
     return result;
 }
 
+void GraphicDump(struct List* my_list)
+{
+    FILE* fp = fopen("list.dot", "w");
+    fprintf(fp, "digraph G{\n");
+    fprintf(fp, "  rankdir=LR;\n");
+
+    int index = 0;
+    int data = 0;
+    int next = 0;
+    int pred = 0;
+
+    for (int i = 0; i < my_list->capacity; i++)
+    {
+        fprintf(fp, "  %d [shape=record, label=\" index: %d | data: %d| next: %d| pred: %d\"];\n", i, i, my_list->data[i], my_list->next[i], my_list->pred[i]);
+    }
+    fprintf(fp, "  ");
+    for (int i = 0; i < my_list->capacity - 1; i++)
+    {
+        fprintf(fp, "%d -> ", i);
+    }
+    fprintf(fp, "%d;\n", my_list->capacity - 1);
+    fprintf(fp, "}\n");
+}

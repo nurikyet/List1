@@ -26,6 +26,8 @@ int main(/*const int argc, const char* argv[]*/)
 
     LIST_DUMP(&my_list);
 
+    GraphicDump(&my_list);
+
     ListDtor(&my_list);
 
     return (int)Error::NO_ERROR;

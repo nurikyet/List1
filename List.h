@@ -73,6 +73,6 @@ int ListVerify(struct List* my_list, int result);
 
 void ListDump(FILE* fp, struct List* my_list, const char* func, const char* file, const int line);
 void PrintError(FILE* fp, int result);
-
+void GraphicDump(struct List* my_list);
 
 #endif // LIST_H_INCLUDED
