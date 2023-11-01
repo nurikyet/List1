@@ -24,6 +24,12 @@ int main(/*const int argc, const char* argv[]*/)
 
     LIST_DUMP(&my_list);
 
+    ListPushAfter(&my_list, 2, 60);
+
+    LIST_DUMP(&my_list);
+
+    ListPushAfter(&my_list, 3, 70);
+
     LIST_DUMP(&my_list);
 
     GraphicDump(&my_list);

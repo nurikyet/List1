@@ -197,18 +197,22 @@ int ListPushAfter(struct List* my_list, int index, elem_t element)
     int free_index = my_list->free;
     my_list->free  = my_list->next[free_index];
 
-    ABOBA;
-
-    my_list->data[free_index]                = element;
-    my_list->next[free_index]                = my_list->next[index];
-    my_list->pred[my_list->next[free_index]] = free_index;
-    my_list->next[index]                     = free_index;
-    my_list->pred[free_index]                = index;
-
     if (index == my_list->tail)
     {
-        my_list->tail = free_index;
+        my_list->tail             = free_index;
+        my_list->next[free_index] = 0;
+        my_list->pred[my_list->next[my_list->tail]] = my_list->tail;
     }
+
+    else
+    {
+        my_list->next[free_index]                = my_list->next[index];
+        my_list->pred[my_list->next[free_index]] = free_index;
+    }
+
+    my_list->data[free_index]                = element;
+    my_list->next[index]                     = free_index;
+    my_list->pred[free_index]                = index;
 
     return free_index;
 }
@@ -253,6 +257,8 @@ int ListPushAfterTail(struct List* my_list, elem_t element)
 
     my_list->pred[free_index]    = my_list->tail;
     my_list->next[my_list->tail] = free_index;
+
+    my_list->pred[my_list->next[my_list->tail]] = my_list->tail;
 
     my_list->tail = free_index;
 
@@ -369,20 +375,60 @@ void GraphicDump(struct List* my_list)
     fprintf(fp, "digraph G{\n");
     fprintf(fp, "  rankdir=LR;\n");
 
-    int index = 0;
-    int data = 0;
-    int next = 0;
-    int pred = 0;
-
-    for (int i = 0; i < my_list->capacity; i++)
+    int size = 1;
+    for (int i = 1; i < my_list->capacity; i++)
     {
-        fprintf(fp, "  %d [shape=record, label=\" index: %d | data: %d| next: %d| pred: %d\"];\n", i, i, my_list->data[i], my_list->next[i], my_list->pred[i]);
+        if (my_list->pred[i] != VALUE)
+        size++;
     }
-    fprintf(fp, "  ");
+
+    fprintf(fp, "  subgraph cluster0 {\n");
+    fprintf(fp, "      node [color = \"#4682B4\", fontsize=14];\n");
+    //fprintf(fp, "      style=filled;\n");
+    for (int i = 0; i < size; i++)
+    {
+        fprintf(fp, "      %d [shape=record, style=\"filled\", fillcolor=\"#AFEEEE\", label=\" %d | data: %d| <f%d> next: %d| <f%d%d> pred: %d\"];\n", i, i, my_list->data[i], i, my_list->next[i], i, i, my_list->pred[i]);
+    }
+    fprintf(fp, "      color=blue;\n");
+    fprintf(fp, "  }\n");
+
+    fprintf(fp, "  subgraph cluster1 {\n");
+    fprintf(fp, "      node [color = \"#800080\", fontsize=14];\n");
+    for (int i = size; i < my_list->capacity; i++)
+    {
+        fprintf(fp, "      %d [shape=record, style=\"filled\", fillcolor=\"#DDA0DD\", label=\" %d | FREE | <f%d> next: %d| pred: %d\"];\n", i, i, i, my_list->next[i], my_list->pred[i]);
+    }
+    fprintf(fp, "      color=purple;\n");
+    fprintf(fp, "  }\n");
+
+    fprintf(fp, "      free [shape=tripleoctagon, style=\"filled\", fillcolor=\"#F08080\", label=\" FREE: %d\"];\n", my_list->free);
+    fprintf(fp, "      head [shape=tripleoctagon, style=\"filled\", fillcolor=\"#F08080\", label=\" HEAD: %d\"];\n", my_list->head);
+    fprintf(fp, "      tail [shape=tripleoctagon, style=\"filled\", fillcolor=\"#F08080\", label=\" TAIL: %d\"];\n", my_list->tail);
+
+
     for (int i = 0; i < my_list->capacity - 1; i++)
     {
-        fprintf(fp, "%d -> ", i);
+        fprintf(fp, "  %d -> %d[color=\"white\", weight = 1000]\n", i, i + 1);
     }
-    fprintf(fp, "%d;\n", my_list->capacity - 1);
+
+    for (int i = 0; i < size; i++)
+    {
+        fprintf(fp, "%d:<f%d> -> %d:<f%d>[color=\"red\", weight = 200]\n", i, i, my_list->next[i], my_list->next[i]);
+    }
+
+    for (int i = size; i < my_list->capacity; i++)
+    {
+        fprintf(fp, "%d:<f%d> -> %d:<f%d>[style=\"dashed\", color=\"red\", weight = 200]\n", i, i, my_list->next[i], my_list->next[i]);
+    }
+
+    for (int i = 0; i < size; i++)
+    {
+        fprintf(fp, "%d:<f%d%d> -> %d:<f%d%d>[color=\"#3CB371\", weight = 100]\n", i, i, i, my_list->pred[i], my_list->pred[i], my_list->pred[i]);
+    }
+
+    fprintf(fp, "free -> %d\n", my_list->free);
+    fprintf(fp, "head -> %d\n", my_list->head);
+    fprintf(fp, "tail -> %d\n", my_list->tail);
+
     fprintf(fp, "}\n");
 }
