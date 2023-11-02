@@ -2,14 +2,14 @@ digraph G{
   rankdir=LR;
   subgraph cluster0 {
       node [color = "#4682B4", fontsize=14];
-      0 [shape=record, style="filled", fillcolor="#AFEEEE", label=" 0 | data: -777| <f0> next: 1| <f00> pred: 2"];
+      0 [shape=record, style="filled", fillcolor="#AFEEEE", label=" 0 | data: -777| <f0> next: 1| <f00> pred: 3"];
       1 [shape=record, style="filled", fillcolor="#AFEEEE", label=" 1 | data: 10| <f1> next: 2| <f11> pred: 0"];
-      2 [shape=record, style="filled", fillcolor="#AFEEEE", label=" 2 | data: 40| <f2> next: 0| <f22> pred: 1"];
+      2 [shape=record, style="filled", fillcolor="#AFEEEE", label=" 2 | data: 40| <f2> next: 3| <f22> pred: 1"];
+      3 [shape=record, style="filled", fillcolor="#AFEEEE", label=" 3 | data: 50| <f3> next: 0| <f33> pred: 2"];
       color=blue;
   }
   subgraph cluster1 {
       node [color = "#800080", fontsize=14];
-      3 [shape=record, style="filled", fillcolor="#DDA0DD", label=" 3 | FREE | <f3> next: 4| pred: -1"];
       4 [shape=record, style="filled", fillcolor="#DDA0DD", label=" 4 | FREE | <f4> next: 5| pred: -1"];
       5 [shape=record, style="filled", fillcolor="#DDA0DD", label=" 5 | FREE | <f5> next: 6| pred: -1"];
       6 [shape=record, style="filled", fillcolor="#DDA0DD", label=" 6 | FREE | <f6> next: 7| pred: -1"];
@@ -23,9 +23,9 @@ digraph G{
       14 [shape=record, style="filled", fillcolor="#DDA0DD", label=" 14 | FREE | <f14> next: 0| pred: -1"];
       color=purple;
   }
-      free [shape=tripleoctagon, style="filled", fillcolor="#F08080", label=" FREE: 3"];
+      free [shape=tripleoctagon, style="filled", fillcolor="#F08080", label=" FREE: 4"];
       head [shape=tripleoctagon, style="filled", fillcolor="#F08080", label=" HEAD: 1"];
-      tail [shape=tripleoctagon, style="filled", fillcolor="#F08080", label=" TAIL: 2"];
+      tail [shape=tripleoctagon, style="filled", fillcolor="#F08080", label=" TAIL: 3"];
   0 -> 1[color="white", weight = 1000]
   1 -> 2[color="white", weight = 1000]
   2 -> 3[color="white", weight = 1000]
@@ -42,8 +42,8 @@ digraph G{
   13 -> 14[color="white", weight = 1000]
 0:<f0> -> 1:<f1>[color="red", weight = 0]
 1:<f1> -> 2:<f2>[color="red", weight = 0]
-2:<f2> -> 0:<f0>[color="red", weight = 0]
-3:<f3> -> 4:<f4>[style="dashed", color="red", weight = 0]
+2:<f2> -> 3:<f3>[color="red", weight = 0]
+3:<f3> -> 0:<f0>[color="red", weight = 0]
 4:<f4> -> 5:<f5>[style="dashed", color="red", weight = 0]
 5:<f5> -> 6:<f6>[style="dashed", color="red", weight = 0]
 6:<f6> -> 7:<f7>[style="dashed", color="red", weight = 0]
@@ -55,10 +55,11 @@ digraph G{
 12:<f12> -> 13:<f13>[style="dashed", color="red", weight = 0]
 13:<f13> -> 14:<f14>[style="dashed", color="red", weight = 0]
 14:<f14> -> 0:<f0>[style="dashed", color="red", weight = 0]
-0:<f00> -> 2:<f22>[color="#3CB371", weight = 0]
+0:<f00> -> 3:<f33>[color="#3CB371", weight = 0]
 1:<f11> -> 0:<f00>[color="#3CB371", weight = 0]
 2:<f22> -> 1:<f11>[color="#3CB371", weight = 0]
-free -> 3
+3:<f33> -> 2:<f22>[color="#3CB371", weight = 0]
+free -> 4
 head -> 1
-tail -> 2
+tail -> 3
 }

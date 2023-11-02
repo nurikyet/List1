@@ -14,10 +14,9 @@ void CloseLogFile()
 
 void OpenLog (const char* FILE_NAME)
 {
-    char* file_name = strdup (FILE_NAME);
-    printf("\n strdup works like this %s \n", file_name);
+    char* file_name = strdup(FILE_NAME);
 
-    LOG_FILE = fopen (FILE_NAME, "w");
+    LOG_FILE = fopen(file_name, "w");
 
     if (LOG_FILE == NULL)
     {
@@ -29,3 +28,21 @@ void OpenLog (const char* FILE_NAME)
     fprintf (LOG_FILE, "OPEN\n");
     atexit (CloseLogFile);
 }
+
+/*
+void OpenLogFile(const char* FILE_NAME)
+{
+    char* file_name = strdup(FILE_NAME);
+
+    LOG_SITE = fopen(file_name, "w");
+
+    if (LOG_FILE == NULL)
+    {
+        printf("your log_file is NULL\n");
+        LOG_FILE = stderr;
+    }
+
+    fprintf(LOG_FILE, "\\-----------------------------------------------------\\\n");
+}
+*/
+

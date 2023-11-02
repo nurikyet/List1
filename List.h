@@ -8,14 +8,17 @@
                                        ListCtor(&nick, quantity);      \
                                        nick.name = #nick;
 
-#define ARRAY_OK(arr) if (my_list->arr == nullptr)                                                             \
+#define ARRAY_OK(arr) if (arr == nullptr)                                                                      \
                       {                                                                                        \
                           my_list->capacity = 0;                                                               \
                           fprintf(LOG_FILE, "Function %s: not enough memory to allocate for " #arr, __func__); \
-                          (int)Error::ERROR_MEMORY;                                                            \
+                          return (int)Error::ERROR_MEMORY;                                                     \
                       }
 
-#define LIST_DUMP(my_list) ListDump(LOG_FILE, my_list, __func__, __FILE__, __LINE__)
+#define LIST_DUMP(my_list){ ListDump(LOG_FILE, my_list, __func__, __FILE__, __LINE__);                         \
+                            GraphicDump(my_list);                                                              \
+                          }
+
 #define VERIFY(my_list) {int error = ListOk(LOG_FILE, my_list); printf("error in verify is %d\n", error);      \
                         if (error != 0)                                                                        \
                         {                                                                                      \
@@ -70,9 +73,11 @@ int ListPop(struct List* my_list, int index);
 int ListPopFirstElement(struct List* my_list);
 int ListPushFirst(struct List* my_list, elem_t element);
 int ListVerify(struct List* my_list, int result);
+int GetTail(struct List* my_list);
+int GetHead(struct List* my_list);
 
 void ListDump(FILE* fp, struct List* my_list, const char* func, const char* file, const int line);
 void PrintError(FILE* fp, int result);
 void GraphicDump(struct List* my_list);
-
+void CreateNewPicture();
 #endif // LIST_H_INCLUDED
