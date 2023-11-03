@@ -7,8 +7,6 @@ int main()
 {
     OpenLog("logfile.html");
 
-    //OpenLogFile("logfile.html");
-
     LIST_CONSTRUCT(my_list, 15);
 
     ListPushAfter(&my_list, 0, 10);
@@ -17,19 +15,17 @@ int main()
 
     LIST_DUMP(&my_list);
 
-    //ListPushAfter(&my_list, 2, 50);
+    ListPushAfter(&my_list, 2, 50);
 
-    //LIST_DUMP(&my_list);
+    LIST_DUMP(&my_list);
 
-    //GetName();
+    ListPop(&my_list, 3);
 
-    //ListPop(&my_list, 3);
+    LIST_DUMP(&my_list);
 
-    //LIST_DUMP(&my_list);
+    ListPushAfter(&my_list, 2, 60);
 
-    //ListPushAfter(&my_list, 1, 60);
-
-    //LIST_DUMP(&my_list);
+    LIST_DUMP(&my_list);
 
     //ListPushAfter(&my_list, 1, 70);
 

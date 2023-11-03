@@ -12,12 +12,12 @@
 
 char num[] = "1";
 
-int ListCtor(struct List* my_list, int capacity)
+int ListCtor(struct List* my_list, int size)
 {
-    assert(capacity);
-    my_list->capacity = capacity;
+    assert(size);
+    my_list->size = size;
 
-    int array_size = (my_list->capacity) * sizeof(elem_t);
+    int array_size = (my_list->size) * sizeof(elem_t);
 
     my_list->data = (elem_t*) calloc(array_size, sizeof(char));
     ARRAY_OK(my_list->data);
@@ -25,19 +25,19 @@ int ListCtor(struct List* my_list, int capacity)
 
     my_list->next = (int*) calloc(array_size, sizeof(char));
     ARRAY_OK(my_list->next);
-    for (int i = 0; i < capacity - 1; i++)
+    for (int i = 1; i < size - 1; i++)
     {
         (my_list->next)[i] = i + 1;
     }
+    (my_list->next)[0] = 0;
 
     my_list->pred = (int*) calloc(array_size, sizeof(char));
     ARRAY_OK(my_list->pred);
-    memset(my_list->pred, VALUE, capacity*sizeof(int));
-    my_list->pred[0] = 1;
+    memset(my_list->pred, VALUE, size*sizeof(int));
+    my_list->pred[0] = 0;
 
-    my_list->head = 1;
-    my_list->tail = 1;
     my_list->free = 1;
+    my_list->capacity = 1;
 
     return (int)Error::NO_ERROR;
 }
@@ -54,8 +54,6 @@ int ListDtor(struct List* my_list)
 
     my_list->capacity  = POISON;
 
-    my_list->tail = POISON;
-    my_list->head = POISON;
     my_list->free = POISON;
 
     return (int)Error::NO_ERROR;
@@ -75,38 +73,38 @@ void ListDump(FILE* fp, struct List* my_list, const char* func, const char* file
     fprintf(fp, "capacity = %d\n", my_list->capacity);
 
     char liner[LINE_LEN]= "";
-    memset(liner, '-', (7*my_list->capacity - 2));
+    memset(liner, '-', (7*my_list->size - 2));
 
-    for (int i = 0; i < my_list->capacity; i++)
+    for (int i = 0; i < my_list->size; i++)
     {
         fprintf(fp, "|%5d ", i);
     }
     fprintf(fp, "\n");
     fprintf(fp, "%s\n", liner);
 
-    for (int i = 0; i < my_list->capacity; i++)
+    for (int i = 0; i < my_list->size; i++)
     {
         fprintf(fp, "|%5d ", my_list->data[i]);
     }
     fprintf(fp, "\n");
     fprintf(fp, "%s\n", liner);
 
-    for (int i = 0; i < my_list->capacity; i++)
+    for (int i = 0; i < my_list->size; i++)
     {
         fprintf(fp, "|%5d ", my_list->next[i]);
     }
     fprintf(fp, "\n");
     fprintf(fp, "%s\n", liner);
 
-    for (int i = 0; i < my_list->capacity; i++)
+    for (int i = 0; i < my_list->size; i++)
     {
         fprintf(fp, "|%5d ", my_list->pred[i]);
     }
     fprintf(fp, "\n");
     fprintf(fp, "%s\n", liner);
 
-    fprintf(fp, "HEAD %d\n", my_list->head);
-    fprintf(fp, "TAIL %d\n", my_list->tail);
+    fprintf(fp, "HEAD %d\n", GetHead(my_list));
+    fprintf(fp, "TAIL %d\n", GetTail(my_list));
     fprintf(fp, "FREE %d\n", my_list->free);
     fprintf(fp, "\n");
 }
@@ -198,71 +196,15 @@ int ListPushAfter(struct List* my_list, int index, elem_t element)
     int free_index = my_list->free;
     my_list->free  = my_list->next[free_index];
 
-    if (index == GetTail(my_list))
-    {
-        my_list->pred[0]          = free_index;
-        my_list->next[free_index] = 0;
-        //my_list->pred[my_list->next[my_list->tail]] = my_list->tail;
-    }
+    my_list->next[free_index]                = my_list->next[index];
+    my_list->pred[my_list->next[free_index]] = free_index;
 
-    else
-    {
-        my_list->next[free_index]                = my_list->next[index]; //цикл
-        my_list->pred[my_list->next[free_index]] = free_index;
-    }
 
     my_list->data[free_index]                = element;
     my_list->next[index]                     = free_index;
     my_list->pred[free_index]                = index;
 
-    return free_index;
-}
-
-int ListPushFirst(struct List* my_list, elem_t element)
-{
-    assert(my_list);
-
-    int free_index = my_list->free;
-    my_list->free  = my_list->next[free_index];
-
-    my_list->data[free_index]                = element;
-    my_list->next[free_index]                = my_list->head;
-    my_list->pred[free_index]                = FIRST_VALUE;
-
-    if (my_list->head != 0)
-    {
-        my_list->pred[my_list->head] = free_index;
-    }
-
-    if (my_list->tail == 0)
-    {
-        my_list->tail = free_index;
-    }
-
-    my_list->head = free_index;
-
-    LIST_DUMP(my_list);
-
-    return free_index;
-}
-
-int ListPushAfterTail(struct List* my_list, elem_t element)
-{
-    assert(my_list);
-
-    int free_index = my_list->free;
-    my_list->free  = my_list->next[free_index];
-
-    my_list->data[free_index] = element;
-    my_list->next[free_index] = 0;
-
-    my_list->pred[free_index]    = my_list->tail;
-    my_list->next[my_list->tail] = free_index;
-
-    my_list->pred[my_list->next[my_list->tail]] = my_list->tail;
-
-    my_list->tail = free_index;
-
+    my_list->capacity ++;
     return free_index;
 }
 
@@ -273,11 +215,13 @@ int ListPop(struct List* my_list, int index)
     if (index <= 0)
     {
         printf("The index must be greater than zero, and you entered - %d\n", index);
+        return (int)Error::ERROR_LEN;
     }
 
     else if (index > my_list->capacity)
     {
         printf("Index cannot be greater than capacity, but you entered index - %d, capacity - %d\n", index, my_list->capacity);
+        return (int)Error::ERROR_MEMORY;
     }
 
     else if (my_list->pred[index] == -1)
@@ -294,7 +238,7 @@ int ListPop(struct List* my_list, int index)
         my_list->next[0] = my_list->next[index];
     }
 
-    if (index == my_list->tail)
+    if (index == GetTail(my_list))
     {
         my_list->pred[0] = my_list->pred[index];
     }
@@ -304,23 +248,10 @@ int ListPop(struct List* my_list, int index)
     my_list->next[index] = my_list->free;
 
     my_list->free = index;
-
+    my_list->capacity--;
     return (int)Error::NO_ERROR;
 }
 
-int ListPopFirstElement(struct List* my_list)
-{
-    assert(my_list);
-
-    my_list->pred[my_list->next[my_list->head]] = my_list->pred[my_list->head];
-
-    my_list->data[my_list->head] = POISON;
-    my_list->pred[my_list->head] = VALUE;
-    my_list->next[my_list->head] = my_list->free;
-
-    my_list->head = my_list->next[my_list->head];
-    return (int)Error::NO_ERROR;
-}
 
 int ListVerify(struct List* my_list, int result)
 {
@@ -335,7 +266,7 @@ int ListVerify(struct List* my_list, int result)
     int new_pred[LINE_LEN] = {};
 
     int count_next = 0;
-    int actual_next = my_list->head;
+    int actual_next = GetHead(my_list);
 
     while (actual_next != 0)
     {
@@ -345,7 +276,7 @@ int ListVerify(struct List* my_list, int result)
     }
 
     int count_pred = 0;
-    int actual_pred = my_list->tail;
+    int actual_pred = GetTail(my_list);
 
     while (actual_pred != 0)
     {
@@ -377,17 +308,17 @@ void GraphicDump(struct List* my_list)
     fprintf(fp, "digraph G{\n");
     fprintf(fp, "  rankdir=LR;\n");
 
-    int size = 1;
-    for (int i = 1; i < my_list->capacity; i++)
+    int count = 1;
+    for (int i = 1; i < my_list->size; i++)
     {
         if (my_list->pred[i] != VALUE)
-        size++;
+        count++;
     }
 
     fprintf(fp, "  subgraph cluster0 {\n");
     fprintf(fp, "      node [color = \"#4682B4\", fontsize=14];\n");
-    //fprintf(fp, "      style=filled;\n");
-    for (int i = 0; i < size; i++)
+
+    for (int i = 0; i < count; i++)
     {
         fprintf(fp, "      %d [shape=record, style=\"filled\", fillcolor=\"#AFEEEE\", label=\" %d | data: %d| <f%d> next: %d| <f%d%d> pred: %d\"];\n", i, i, my_list->data[i], i, my_list->next[i], i, i, my_list->pred[i]);
     }
@@ -396,7 +327,7 @@ void GraphicDump(struct List* my_list)
 
     fprintf(fp, "  subgraph cluster1 {\n");
     fprintf(fp, "      node [color = \"#800080\", fontsize=14];\n");
-    for (int i = size; i < my_list->capacity; i++)
+    for (int i = count; i < my_list->size; i++)
     {
         fprintf(fp, "      %d [shape=record, style=\"filled\", fillcolor=\"#DDA0DD\", label=\" %d | FREE | <f%d> next: %d| pred: %d\"];\n", i, i, i, my_list->next[i], my_list->pred[i]);
     }
@@ -408,22 +339,22 @@ void GraphicDump(struct List* my_list)
     fprintf(fp, "      tail [shape=tripleoctagon, style=\"filled\", fillcolor=\"#F08080\", label=\" TAIL: %d\"];\n", GetTail(my_list));
 
 
-    for (int i = 0; i < my_list->capacity - 1; i++)
+    for (int i = 0; i < my_list->size - 1; i++)
     {
         fprintf(fp, "  %d -> %d[color=\"white\", weight = 1000]\n", i, i + 1);   //, constraint=false
     }
 
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < count; i++)
     {
         fprintf(fp, "%d:<f%d> -> %d:<f%d>[color=\"red\", weight = 0]\n", i, i, my_list->next[i], my_list->next[i]);
     }
 
-    for (int i = size; i < my_list->capacity; i++)
+    for (int i = count; i < my_list->size; i++)
     {
         fprintf(fp, "%d:<f%d> -> %d:<f%d>[style=\"dashed\", color=\"red\", weight = 0]\n", i, i, my_list->next[i], my_list->next[i]);
     }
 
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < count; i++)
     {
         fprintf(fp, "%d:<f%d%d> -> %d:<f%d%d>[color=\"#3CB371\", weight = 0]\n", i, i, i, my_list->pred[i], my_list->pred[i], my_list->pred[i]);
     }
