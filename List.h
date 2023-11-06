@@ -39,13 +39,12 @@ struct List
 {
     const char* name;
     int capacity;
+    int size;
 
     elem_t* data;
     int* next;
     int* pred;
 
-    int head;
-    int tail;
     int free;
 };
 
