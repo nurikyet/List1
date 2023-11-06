@@ -66,11 +66,8 @@ enum class Error
 int ListCtor(struct List* my_list, int capacity);
 int ListDtor(struct List* my_list);
 int ListOk(FILE* fp, struct List* my_list);
-int ListPushAfter(struct List* my_list, int index, elem_t element);
-int ListPushAfterTail(struct List* my_list, elem_t element);
-int ListPop(struct List* my_list, int index);
-int ListPopFirstElement(struct List* my_list);
-int ListPushFirst(struct List* my_list, elem_t element);
+int ListInsertAfter(struct List* my_list, int index, elem_t element);
+int ListDelete(struct List* my_list, int index);
 int ListVerify(struct List* my_list, int result);
 int GetTail(struct List* my_list);
 int GetHead(struct List* my_list);

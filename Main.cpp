@@ -9,25 +9,25 @@ int main()
 
     LIST_CONSTRUCT(my_list, 15);
 
-    ListPushAfter(&my_list, 0, 10);
+    ListInsertAfter(&my_list, 0, 10);
 
-    ListPushAfter(&my_list, 1, 40);
-
-    LIST_DUMP(&my_list);
-
-    ListPushAfter(&my_list, 2, 50);
+    ListInsertAfter(&my_list, 1, 40);
 
     LIST_DUMP(&my_list);
 
-    ListPop(&my_list, 3);
+    ListInsertAfter(&my_list, 2, 50);
 
     LIST_DUMP(&my_list);
 
-    ListPushAfter(&my_list, 2, 60);
+    ListDelete(&my_list, 3);
 
     LIST_DUMP(&my_list);
 
-    //ListPushAfter(&my_list, 1, 70);
+    ListInsertAfter(&my_list, 2, 60);
+
+    LIST_DUMP(&my_list);
+
+    //ListInsertAfter(&my_list, 1, 70);
 
     //LIST_DUMP(&my_list);
 

@@ -14,7 +14,8 @@ char num[] = "1";
 
 int ListCtor(struct List* my_list, int size)
 {
-    assert(size);
+    assert(my_list != NULL);
+    assert(size > 0);
     my_list->size = size;
 
     int array_size = (my_list->size) * sizeof(elem_t);
@@ -162,16 +163,16 @@ void PrintError(FILE* fp, int result)
         fprintf(fp, "Capacity must be > 0\n");
 
     if ((result & (int)Error::ERROR_DATA) != 0)
-        fprintf(fp, "address of data != nullptr\n");
+        fprintf(fp, "address of data == nullptr\n");
 
     if ((result & (int)Error::ERROR_NEXT) != 0)
-        fprintf(fp, "address of next != nullptr\n");
+        fprintf(fp, "address of next == nullptr\n");
 
     if ((result & (int)Error::ERROR_PRED) != 0)
-        fprintf(fp, "address of pred != nullptr\n");
+        fprintf(fp, "address of pred == nullptr\n");
 
     if ((result & (int)Error::ERROR_STRUCT) != 0)
-        fprintf(fp, "address of struct != nullptr\n");
+        fprintf(fp, "address of struct == nullptr\n");
 
     if ((result & (int)Error::ERROR_ZERO_ELEMENT) != 0)
         fprintf(fp, "The first element is not equal to the poisonous value\n");
@@ -180,16 +181,16 @@ void PrintError(FILE* fp, int result)
         fprintf(fp, "The order in the arrays next and pred is different\n");
 }
 
-int ListPushAfter(struct List* my_list, int index, elem_t element)
+int ListInsertAfter(struct List* my_list, int index, elem_t element)
 {
     if (index < 0)
     {
-        printf("The index must be greater than zero, and you entered - %d\n", index);
+        fprintf(stderr, "The index must be greater than zero, and you entered - %d\n", index);
     }
 
     else if (index > my_list->capacity)
     {
-        printf("Index cannot be greater than capacity, but you entered index - %d, capacity - %d\n", index, my_list->capacity);
+        fprintf(stderr, "Index cannot be greater than capacity, but you entered index - %d, capacity - %d\n", index, my_list->capacity);
         return (int)Error::ERROR_MEMORY;
     }
 
@@ -208,25 +209,25 @@ int ListPushAfter(struct List* my_list, int index, elem_t element)
     return free_index;
 }
 
-int ListPop(struct List* my_list, int index)
+int ListDelete(struct List* my_list, int index)
 {
     assert(my_list);
 
     if (index <= 0)
     {
-        printf("The index must be greater than zero, and you entered - %d\n", index);
+        fprintf(stderr, "The index must be greater than zero, and you entered - %d\n", index);
         return (int)Error::ERROR_LEN;
     }
 
     else if (index > my_list->capacity)
     {
-        printf("Index cannot be greater than capacity, but you entered index - %d, capacity - %d\n", index, my_list->capacity);
+        fprintf(stderr, "Index cannot be greater than capacity, but you entered index - %d, capacity - %d\n", index, my_list->capacity);
         return (int)Error::ERROR_MEMORY;
     }
 
     else if (my_list->pred[index] == -1)
     {
-        printf("The element with index [%d] has already been deleted\n", index);
+        fprintf(stderr, "The element with index [%d] has already been deleted\n", index);
     }
 
     my_list->next[my_list->pred[index]] = my_list->next[index];
@@ -251,7 +252,6 @@ int ListPop(struct List* my_list, int index)
     my_list->capacity--;
     return (int)Error::NO_ERROR;
 }
-
 
 int ListVerify(struct List* my_list, int result)
 {
