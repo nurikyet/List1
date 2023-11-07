@@ -41,7 +41,7 @@ struct List
     int capacity;
     int size;
 
-    elem_t* data;
+    int* data;
     int* next;
     int* pred;
 
@@ -61,6 +61,7 @@ enum class Error
     ERROR_SCANF                            = 1 << 7,
     ERROR_ZERO_ELEMENT                     = 1 << 8,
     ERROR_DIFFERENCE_BETWEEN_NEXT_AND_PRED = 1 << 9,
+    ERROR_INDEX                            = 1 << 10
 };
 
 int ListCtor(struct List* my_list, int capacity);
@@ -69,8 +70,12 @@ int ListOk(FILE* fp, struct List* my_list);
 int ListInsertAfter(struct List* my_list, int index, elem_t element);
 int ListDelete(struct List* my_list, int index);
 int ListVerify(struct List* my_list, int result);
+int ListSort(struct List* my_list);
+int ListFind(struct List* my_list, int value);
 int GetTail(struct List* my_list);
 int GetHead(struct List* my_list);
+int FindLogicalIndex(struct List* my_list, int physical_index);
+int FindPhysicalIndex(struct List* my_list, int logical_index);
 
 void ListDump(FILE* fp, struct List* my_list, const char* func, const char* file, const int line);
 void PrintError(FILE* fp, int result);

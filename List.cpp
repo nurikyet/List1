@@ -18,9 +18,9 @@ int ListCtor(struct List* my_list, int size)
     assert(size > 0);
     my_list->size = size;
 
-    int array_size = (my_list->size) * sizeof(elem_t);
+    int array_size = (my_list->size) * sizeof(int);
 
-    my_list->data = (elem_t*) calloc(array_size, sizeof(char));
+    my_list->data = (int*) calloc(array_size, sizeof(char));
     ARRAY_OK(my_list->data);
     (my_list->data)[0] = POISON;
 
@@ -181,7 +181,7 @@ void PrintError(FILE* fp, int result)
         fprintf(fp, "The order in the arrays next and pred is different\n");
 }
 
-int ListInsertAfter(struct List* my_list, int index, elem_t element)
+int ListInsertAfter(struct List* my_list, int index, int element)
 {
     if (index < 0)
     {
@@ -399,4 +399,117 @@ int GetHead(struct List* my_list)
 {
     assert(my_list);
     return (my_list->next[0]);
+}
+
+int FindLogicalIndex(struct List* my_list, int physical_index)
+{
+    assert(my_list);
+    if (physical_index <= 0)
+    {
+        fprintf(stderr, "Physical index mast be > 0, but you entered - %d\n", physical_index);
+        return (int)Error::ERROR_INDEX;
+    }
+
+    int index = GetHead(my_list);
+    int logical_index = 0;
+
+    while(index != physical_index)
+    {
+        index = my_list->next[index];
+        logical_index++;
+    }
+
+    return logical_index;
+}
+
+int FindPhysicalIndex(struct List* my_list, int logical_index)
+{
+    assert(my_list);
+
+    if (logical_index < 0)
+    {
+        fprintf(stderr, "Logical index mast be >= 0, but you entered - %d\n", logical_index);
+    }
+
+    int index = GetHead(my_list);
+
+    for (int i = 0; i < logical_index; i++)
+    {
+        index = my_list->next[index];
+    }
+
+    return index;
+}
+
+int ListFind(struct List* my_list, int value)
+{
+    assert(my_list);
+
+    int index = POISON;
+
+    for (int i = 1; i < my_list->size; i++)
+    {
+        if (my_list->data[i] == value)
+        {
+            index = i;
+        }
+    }
+
+    if (index == POISON)
+    {
+        fprintf(stderr, "Sorry, there is no list with this value %d in the sheet", value);
+    }
+    return index;
+}
+
+int ListSort(struct List* my_list)
+{
+    assert(my_list);
+    int array_size = (my_list->size) * sizeof(int);
+
+    int* new_data = (int*) calloc(array_size, sizeof(char));
+    ARRAY_OK(new_data);
+    new_data[0] = my_list->data[0];
+
+    int* new_next = (int*) calloc(array_size, sizeof(char));
+    ARRAY_OK(new_next);
+    new_next[0] = 1;
+
+    int* new_pred = (int*) calloc(array_size, sizeof(char));
+    ARRAY_OK(new_pred);
+    new_pred[0] = my_list->capacity - 1;
+
+    int index = GetHead(my_list);
+    int count = 0;
+
+    for (int i = 1; i < my_list->size; i++)
+    {
+        if (my_list->pred[i] < 0)
+        {
+            continue;
+        }
+        new_data[i] = my_list->data[index];
+        new_next[i] = my_list->next[index];
+        new_pred[i] = my_list->pred[index];
+        index = my_list->next[index];
+        count++;
+    }
+
+    for (int i = count + 1; i < my_list->size; i++)
+    {
+        new_pred[i] = VALUE;
+        new_next[i] = i + 1;
+        new_data[i] = POISON;
+    }
+    new_next[my_list->size - 1] = FIRST_VALUE;
+
+    free(my_list->data);
+    free(my_list->next);
+    free(my_list->pred);
+
+    my_list->data = new_data;
+    my_list->next = new_next;
+    my_list->pred = new_pred;
+
+    return (int)Error::NO_ERROR;
 }

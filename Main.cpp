@@ -27,13 +27,15 @@ int main()
 
     LIST_DUMP(&my_list);
 
-    //ListInsertAfter(&my_list, 1, 70);
+    printf("logical index is %d\n", FindLogicalIndex(&my_list, 2));
 
-    //LIST_DUMP(&my_list);
+    printf("Physical index is %d\n", FindPhysicalIndex(&my_list, 2));
 
-    //GraphicDump(&my_list);
+    ListSort(&my_list);
 
-    //GraphicDump2(&my_list);
+    printf("index is %d\n", ListFind(&my_list, 60));
+
+    LIST_DUMP(&my_list);
 
     ListDtor(&my_list);
 
