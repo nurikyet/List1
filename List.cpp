@@ -374,7 +374,7 @@ void CreateNewPicture()
 {
 
     char command0[1000] = "dot list.dot -T png -o";
-    char command1[1000] = "C:\\Users\\User\\Documents\\дединский\\List\\list";
+    char command1[1000] = "C:\\Users\\User\\Documents\\пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\\List\\list";
     char command2[] = ".png";
 
     strcat(command1, num);
@@ -401,19 +401,19 @@ int GetHead(struct List* my_list)
     return (my_list->next[0]);
 }
 
-int FindLogicalIndex(struct List* my_list, int physical_index)
+int FindLogicalIndex(struct List* my_list, int physical_index)  // it's this function that should be working as O(1) in case of sorted list
 {
     assert(my_list);
-    if (physical_index <= 0)
+    if (physical_index <= 0)    // what if it's bigger than capacity? :(
     {
-        fprintf(stderr, "Physical index mast be > 0, but you entered - %d\n", physical_index);
+        fprintf(stderr, "Physical index mast be > 0, but you entered - %d\n", physical_index);  // *must be
         return (int)Error::ERROR_INDEX;
     }
 
     int index = GetHead(my_list);
     int logical_index = 0;
 
-    while(index != physical_index)
+    while(index != physical_index)      // what if we cannot reach physical index by going by next, for example, if element on this index is in free? :( 
     {
         index = my_list->next[index];
         logical_index++;
@@ -422,11 +422,11 @@ int FindLogicalIndex(struct List* my_list, int physical_index)
     return logical_index;
 }
 
-int FindPhysicalIndex(struct List* my_list, int logical_index)
-{
+int FindPhysicalIndex(struct List* my_list, int logical_index)  // and this one (see line 404); save something like bool variable called sorted in list and check it here;
+{                                                               // if it is true, you don't need to go through next
     assert(my_list);
 
-    if (logical_index < 0)
+    if (logical_index < 0)  // what if bigger than size?<
     {
         fprintf(stderr, "Logical index mast be >= 0, but you entered - %d\n", logical_index);
     }
@@ -447,9 +447,9 @@ int ListFind(struct List* my_list, int value)
 
     int index = POISON;
 
-    for (int i = 1; i < my_list->size; i++)
-    {
-        if (my_list->data[i] == value)
+    for (int i = 1; i < my_list->size; i++)     // in find we usually go by next; what if there are two examples of value in list
+    {                                           // and going by i you found only second in logical order? 
+        if (my_list->data[i] == value)          // moreover: what if element lies out of first my_list->size elements? you just won't check it!
         {
             index = i;
         }
@@ -477,7 +477,7 @@ int ListSort(struct List* my_list)
 
     int* new_pred = (int*) calloc(array_size, sizeof(char));
     ARRAY_OK(new_pred);
-    new_pred[0] = my_list->capacity - 1;
+    new_pred[0] = my_list->capacity - 1;        
 
     int index = GetHead(my_list);
     int count = 0;
@@ -489,7 +489,7 @@ int ListSort(struct List* my_list)
             continue;
         }
         new_data[i] = my_list->data[index];
-        new_next[i] = my_list->next[index];
+        new_next[i] = my_list->next[index]; // ?? we do not save previous and next indices in sorted list: they will become consistent instead :(
         new_pred[i] = my_list->pred[index];
         index = my_list->next[index];
         count++;
